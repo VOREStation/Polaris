@@ -63,6 +63,11 @@
 #define SS_SLEEPING 4	/// fire() slept.
 #define SS_PAUSING 5 	/// in the middle of pausing
 
+// Subsystem init-states, used for the initialization MC panel.
+#define SS_INITSTATE_NONE 0     // Not initiated yet.
+#define SS_INITSTATE_STARTED 1  // Currently initializnig.
+#define SS_INITSTATE_DONE 2     // Finished initializing.
+
 #define SUBSYSTEM_DEF(X) GLOBAL_REAL(SS##X, /datum/controller/subsystem/##X);\
 /datum/controller/subsystem/##X/New(){\
     NEW_SS_GLOBAL(SS##X);\

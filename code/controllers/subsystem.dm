@@ -30,6 +30,9 @@
 	var/datum/controller/subsystem/queue_next
 	var/datum/controller/subsystem/queue_prev
 
+	var/init_state = SS_INITSTATE_NONE // The current initialization state of this SS - this might be invalid if the subsystem has been Recover()'d.
+	var/init_start = 0                 // What timeofday did we start initializing?
+
 	var/static/list/failure_strikes //How many times we suspect a subsystem type has crashed the MC, 3 strikes and you're out!
 
 //Do not override
@@ -152,33 +155,83 @@
 		if(SS_SLEEPING)
 			state = SS_PAUSING
 
-
-//used to initialize the subsystem AFTER the map has loaded
-/datum/controller/subsystem/Initialize(start_timeofday)
-	subsystem_initialized = TRUE
+// Wrapper so things continue to work even in the case of a SS that doesn't call parent.
+/datum/controller/subsystem/proc/DoInitialize(start_timeofday)
+	init_state = SS_INITSTATE_STARTED
+	init_start = start_timeofday
+	Initialize(start_timeofday)
+	var/init_finish = REALTIMEOFDAY
 	var/time = (REALTIMEOFDAY - start_timeofday) / 10
 	var/msg = "Initialized [name] subsystem within [time] second[time == 1 ? "" : "s"]!"
 	to_chat(world, "<span class='boldannounce'>[msg]</span>")
 	log_world(msg)
+	init_state = SS_INITSTATE_DONE
+	initialized = TRUE	// Legacy.
 	return time
+
+//used to initialize the subsystem AFTER the map has loaded
+/datum/controller/subsystem/Initialize(start_timeofday)
+	// Override this to initialize your subsystem.  No default behavior here please.
 
 //hook for printing stats to the "MC" statuspanel for admins to see performance and related stats etc.
 /datum/controller/subsystem/stat_entry(msg)
 	if(!statclick)
 		statclick = new/obj/effect/statclick/debug(null, "Initializing...", src)
 
+	var/title = "   [name]" // Three spaces to line up with the [X] of the letter'd entrie
+	if (Master.initializing)
+		if (flags & SS_NO_INIT)
+			msg = "NO INIT\t[msg]"
+		else if (init_state == SS_INITSTATE_DONE)
+			msg = "DONE\t[msg]"
+		else if (init_state == SS_INITSTATE_STARTED)
+			msg = "LOADING ([(REALTIMEOFDAY - init_start)/10]s)\t[msg]"
+		else
+			msg = "WAITING\t[msg]"
 
-
-	if(can_fire && !(SS_NO_FIRE & flags))
-		msg = "[round(cost,1)]ms|[round(tick_usage,1)]%([round(tick_overrun,1)]%)|[round(ticks,0.1)]\t[msg]"
+		if (!(flags & SS_NO_INIT))
+			title =  "\[[init_state_letter()]] [name]"
 	else
-		msg = "OFFLINE\t[msg]"
+		if(flags & SS_NO_FIRE)
+			msg = "NO FIRE\t[msg]"
+		if(can_fire)
+			msg = "[round(cost,1)]ms|[round(tick_usage,1)]%([round(tick_overrun,1)]%)|[round(ticks,0.1)]\t[msg]"
+		else
+			msg = "OFFLINE\t[msg]"
 
-	var/title = name
-	if (can_fire)
-		title = "\[[state_letter()]][title]"
+		if (can_fire && !(flags & SS_NO_FIRE))
+			title = "\[[state_letter()]] [name]"
 
 	stat(title, statclick.update(msg))
+
+// Generates the text shown before subsystem message during MC init. Do not override.
+/datum/controller/subsystem/proc/stat_summary_init()
+	if (flags & SS_NO_INIT)
+		. = "NO INIT"
+	else if (init_state == SS_INITSTATE_DONE)
+		. = "DONE"
+	else if (init_state == SS_INITSTATE_STARTED)
+		. = "LOAD ([(REALTIMEOFDAY - init_start)/10]s)"
+	else
+		. = "WAIT"
+
+// Generates the text shown before subsystem message during normal MC operation. Do not override.
+/datum/controller/subsystem/proc/stat_summary_run()
+	if (flags & SS_NO_FIRE)
+		. = "NO FIRE"
+	else if (can_fire)
+		. = "[round(cost,1)]ms|[round(tick_usage,1)]%([round(tick_overrun,1)]%)|[round(ticks,0.1)]"
+	else
+		. = "OFFLINE"
+
+/datum/controller/subsystem/proc/init_state_letter()
+	switch (init_state)
+		if (SS_INITSTATE_NONE)
+			. = "W"
+		if (SS_INITSTATE_STARTED)
+			. = "L"
+		if (SS_INITSTATE_DONE)
+			. = "D"
 
 /datum/controller/subsystem/proc/state_letter()
 	switch (state)
