@@ -59,6 +59,7 @@
 	if(!vis_enabled)
 		vis_enabled = list()
 	client.screen += plane_holder.plane_masters
+	plane_holder.backdrop_me(src)
 	recalculate_vis()
 
 	// AO support
