@@ -29,6 +29,10 @@
 	emergency_shuttle_called_message = "An emergency evacuation shuttle has been called. It will arrive at docks one and two in approximately %ETA%."
 	emergency_shuttle_recall_message = "The emergency shuttle has been recalled."
 
+/datum/map/example/New()
+	..()
+	SSticker.start_immediately = TRUE
+
 /datum/map_z_level/example/first
 	z = Z_LEVEL_FIRST_EXAMPLE
 	name = "First Floor"

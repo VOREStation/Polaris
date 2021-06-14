@@ -46,12 +46,6 @@
 /obj/effect/floor_decal/corner/white/diagonal,
 /turf/simulated/floor/tiled/dark,
 /area/aisat)
-"i" = (
-/obj/machinery/light{
-	dir = 1
-	},
-/turf/simulated/floor/tiled/dark,
-/area/aisat)
 "j" = (
 /obj/structure/disposalpipe/segment,
 /turf/simulated/floor/plating,
@@ -135,10 +129,6 @@
 	icon_state = "alarm0";
 	pixel_x = -22
 	},
-/obj/machinery/light{
-	dir = 8;
-	icon_state = "tube1"
-	},
 /obj/machinery/disposal,
 /obj/structure/disposalpipe/trunk{
 	dir = 1;
@@ -146,29 +136,14 @@
 	},
 /turf/simulated/floor/tiled/dark,
 /area/aisat)
-"x" = (
-/obj/machinery/light{
-	dir = 4;
-	icon_state = "tube1"
-	},
-/turf/simulated/floor/tiled/dark,
-/area/aisat)
 "y" = (
 /obj/machinery/light_switch,
+/obj/effect/landmark{
+	name = "Observer-Start"
+	},
 /turf/simulated/wall,
 /area/aisat)
-"z" = (
-/obj/machinery/light{
-	dir = 8;
-	icon_state = "tube1"
-	},
-/turf/simulated/floor/tiled/dark,
-/area/aisat)
 "A" = (
-/obj/machinery/light{
-	dir = 4;
-	icon_state = "tube1"
-	},
 /obj/machinery/power/apc{
 	dir = 4;
 	name = "east bump";
@@ -187,9 +162,6 @@
 /turf/simulated/floor/tiled/dark,
 /area/aisat)
 "C" = (
-/obj/machinery/light{
-	dir = 1
-	},
 /obj/structure/table/standard,
 /obj/item/weapon/storage/belt/utility/full,
 /turf/simulated/floor/tiled/dark,
@@ -238,13 +210,7 @@
 /obj/effect/floor_decal/sign/a,
 /turf/simulated/floor/tiled/dark,
 /area/aisat)
-"K" = (
-/obj/machinery/light,
-/obj/effect/floor_decal/corner/white/diagonal,
-/turf/simulated/floor/tiled/dark,
-/area/aisat)
 "L" = (
-/obj/machinery/light,
 /obj/machinery/shield_capacitor{
 	anchored = 1;
 	dir = 4;
@@ -740,7 +706,7 @@ F
 F
 F
 h
-K
+h
 b
 b
 b
@@ -802,7 +768,7 @@ h
 h
 h
 h
-x
+n
 B
 h
 h
@@ -830,7 +796,7 @@ a
 a
 a
 b
-i
+n
 n
 t
 n
@@ -870,7 +836,7 @@ h
 h
 h
 h
-z
+n
 D
 h
 h

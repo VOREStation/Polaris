@@ -98,7 +98,7 @@
 		affected_turf.underlays += current_underlay
 	else
 		affected_turf.underlays -= current_underlay
-		current_underlay.icon_state = null
+		current_underlay.icon_state = "gradient"
 		current_underlay.color = list(
 			rr, rg, rb, 00,
 			gr, gg, gb, 00,
@@ -110,3 +110,9 @@
 		affected_turf.underlays += current_underlay
 
 	affected_turf.luminosity = set_luminosity
+
+/datum/lighting_object/proc/removefromturf()
+	affected_turf.underlays -= current_underlay
+
+/datum/lighting_object/proc/addtoturf()
+	affected_turf.underlays += current_underlay

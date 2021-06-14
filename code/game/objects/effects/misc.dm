@@ -72,6 +72,7 @@
 	light_range = MINIMUM_USEFUL_LIGHT_RANGE
 	light_color = COLOR_WHITE
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT
+	light_on = TRUE
 
 /obj/effect/dummy/lighting_obj/Initialize(mapload, _range, _power, _color, _duration)
 	. = ..()
@@ -91,6 +92,11 @@
 	. = ..()
 	if(!ismob(loc))
 		return INITIALIZE_HINT_QDEL
+
+/obj/effect/dummy/lighting_obj/moblight/fire
+	name = "fire"
+	light_color = LIGHT_COLOR_FIRE
+	light_range = LIGHT_RANGE_FIRE
 
 /obj/effect/abstract/directional_lighting
 	mouse_opacity = MOUSE_OPACITY_TRANSPARENT

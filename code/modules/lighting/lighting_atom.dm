@@ -8,7 +8,7 @@
 	///Hexadecimal RGB string representing the colour of the light. White by default.
 	var/light_color = COLOR_WHITE
 	///Boolean variable for toggleable lights. Has no effect without the proper light_system, light_range and light_power values.
-	var/light_on = TRUE
+	var/light_on = FALSE
 	///Bitflags to determine lighting-related atom properties.
 	var/light_flags = NONE
 	///Our light source. Don't fuck with this directly unless you have a good reason!
@@ -34,19 +34,31 @@
 	if(SEND_SIGNAL(src, COMSIG_ATOM_SET_LIGHT, l_range, l_power, l_color, l_on) & COMPONENT_BLOCK_LIGHT_UPDATE)
 		return
 
-	if(!isnull(l_power))
-		set_light_power(l_power)
+	// Legacy behavior helper
+	if(l_range == 0)
+		l_on = FALSE
+	else if(l_range > 0)
+		l_on = TRUE
 
-	if(!isnull(l_range))
-		set_light_range(l_range)
+	var/needs_update = FALSE
+	if(!isnull(l_power) && l_power != light_power)
+		if(!isnull(set_light_power(l_power)))
+			needs_update = TRUE
 
-	if(l_color != NONSENSICAL_VALUE)
-		set_light_color(l_color)
+	if(!isnull(l_range) && l_range != light_range)
+		if(!isnull(set_light_range(l_range)))
+			needs_update = TRUE
 
-	if(!isnull(l_on))
-		set_light_on(l_on)
+	if(l_color != NONSENSICAL_VALUE && l_color != light_color)
+		if(!isnull(set_light_color(l_color)))
+			needs_update = TRUE
 
-	update_light()
+	if(!isnull(l_on) && l_on != light_on)
+		if(!isnull(set_light_on(l_on)))
+			needs_update = TRUE
+
+	if(needs_update)
+		update_light()
 
 #undef NONSENSICAL_VALUE
 

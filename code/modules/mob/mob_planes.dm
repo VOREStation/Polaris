@@ -16,6 +16,7 @@
 	// 'Utility' planes
 	plane_masters[VIS_FULLBRIGHT] 	= new /obj/screen/plane_master/fullbright						//Lighting system (lighting_overlay objects)
 	plane_masters[VIS_LIGHTING] 	= new /obj/screen/plane_master/lighting							//Lighting system (but different!)
+	plane_masters[VIS_O_LIGHT]		= new /obj/screen/plane_master/o_light_visual					//Object lighting (using masks)
 	plane_masters[VIS_EMISSIVE] 	= new /obj/screen/plane_master/emissive							//Emissive overlays
 	plane_masters[VIS_GHOSTS] 		= new /obj/screen/plane_master/ghosts							//Ghosts!
 	plane_masters[VIS_AI_EYE]		= new /obj/screen/plane_master{plane = PLANE_AI_EYE}			//AI Eye!
@@ -48,6 +49,9 @@
 	plane_masters[VIS_CLOAKED]	= new /obj/screen/plane_master/cloaked								//Cloaked atoms!
 
 	..()
+
+	for(var/obj/screen/plane_master/PM as anything in plane_masters)
+		PM.backdrop(my_mob)
 
 /datum/plane_holder/Destroy()
 	my_mob = null
@@ -107,12 +111,7 @@
 		for(var/SP in subplanes)
 			alter_values(SP, values)
 
-/datum/plane_holder/proc/backdrop_me(var/mob/target)
-	if(target != my_mob)
-		stack_trace("Plane master asked to put backdrops on a not-owning mob")
-		return
-	for(var/obj/screen/plane_master/PM as anything in plane_masters)
-		PM.backdrop(target)
+
 	
 
 ////////////////////
@@ -207,9 +206,16 @@
 	add_filter("emissives", 1, alpha_mask_filter(render_source = EMISSIVE_RENDER_TARGET, flags = MASK_INVERSE))
 	add_filter("object_lighting", 2, alpha_mask_filter(render_source = O_LIGHTING_VISUAL_RENDER_TARGET, flags = MASK_INVERSE))
 
+/obj/screen/plane_master/o_light_visual
+	plane = PLANE_O_LIGHTING_VISUAL
+	render_target = O_LIGHTING_VISUAL_RENDER_TARGET
+	blend_mode = BLEND_MULTIPLY
+	alpha = 255
+
 /obj/screen/plane_master/emissive
 	plane = PLANE_EMISSIVE
 	render_target = EMISSIVE_RENDER_TARGET
+	alpha = 255
 
 /obj/screen/plane_master/emissive/Initialize()
 	. = ..()

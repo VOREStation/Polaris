@@ -454,6 +454,21 @@
 		return
 	current_direction = newdir
 	cone.set_dir(newdir)
+	
+	if(newdir & NORTH)
+		cone.pixel_y = 16
+	else if(newdir & SOUTH)
+		cone.pixel_y = -16
+	else
+		cone.pixel_y = 0
+	
+	if(newdir & EAST)
+		cone.pixel_x = 16
+	else if(newdir & WEST)
+		cone.pixel_x = -16
+	else
+		cone.pixel_x = 0
+	
 	if(overlay_lighting_flags & LIGHTING_ON)
 		make_luminosity_update()
 

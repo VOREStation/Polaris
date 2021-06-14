@@ -111,7 +111,12 @@
 // If you're wondering what's with the backslashes, the backslashes cause BYOND to not automatically end the line.
 // As such this all gets counted as a single line.
 // The braces and semicolons are there to be able to do this on a single line.
-#define LUM_FALLOFF(C, T) (1 - CLAMP01(sqrt((C.x - T.x) ** 2 + (C.y - T.y) ** 2 + LIGHTING_HEIGHT) / max(1, light_range)))
+
+// /tg/ falloff alg
+//#define LUM_FALLOFF(C, T) (1 - CLAMP01(sqrt((C.x - T.x) ** 2 + (C.y - T.y) ** 2 + LIGHTING_HEIGHT) / max(1, light_range)))
+
+// Bay/Polaris falloff alg
+#define LUM_FALLOFF(C, T)(1 - CLAMP01(((C.x - T.x) ** 2 +(C.y - T.y) ** 2 + LIGHTING_HEIGHT) ** 0.6 / max(1, light_range)))
 
 #define APPLY_CORNER(C)                          \
 	. = LUM_FALLOFF(C, pixel_turf);              \
