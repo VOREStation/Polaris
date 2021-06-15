@@ -458,7 +458,7 @@
 	var/obj/fire/fire = locate() in loc
 	if(fire)
 		qdel(fire)
-	return
+	return 1
 
 /obj/machinery/door/proc/requiresID()
 	return 1

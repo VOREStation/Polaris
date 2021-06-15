@@ -12,14 +12,15 @@
 	var/datum/weather_holder/weather_holder
 
 	var/sun_position = 0 // 0 means midnight, 1 means noon.
-	var/list/sun = list("range","brightness","color","lum_r","lum_g","lum_b")
-	var/list/datum/lighting_corner/sunlit_corners = list()
+	var/list/sun = list("range","brightness","color")
 	var/list/expected_z_levels = list()
 
 	var/turf/unsimulated/wall/planetary/planetary_wall_type = /turf/unsimulated/wall/planetary
 
 	var/list/turf/simulated/floor/planet_floors = list()
 	var/list/turf/unsimulated/wall/planetary/planet_walls = list()
+
+	var/datum/light_source/sun/sun_source = new
 
 	var/needs_work = 0 // Bitflags to signal to the planet controller these need (properly deferrable) work. Flags defined in controller.
 

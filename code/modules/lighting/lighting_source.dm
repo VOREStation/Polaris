@@ -139,6 +139,26 @@
 		. * applied_lum_b                        \
 	);
 
+#define APPLY_CORNER_SIMPLE(C)                   \
+	. = light_power;                             \
+	var/OLD = effect_str[C];                     \
+	                                             \
+	C.update_lumcount                            \
+	(                                            \
+		(. * lum_r) - (OLD * applied_lum_r),     \
+		(. * lum_g) - (OLD * applied_lum_g),     \
+		(. * lum_b) - (OLD * applied_lum_b)      \
+	);                                           \
+
+#define REMOVE_CORNER_SIMPLE(C)                  \
+	. = -effect_str[C];                          \
+	C.update_lumcount                            \
+	(                                            \
+		. * applied_lum_r,                       \
+		. * applied_lum_g,                       \
+		. * applied_lum_b                        \
+	);
+
 /// This is the define used to calculate falloff.
 /datum/light_source/proc/remove_lum()
 	applied = FALSE
@@ -157,6 +177,8 @@
 	APPLY_CORNER(corner)
 	effect_str[corner] = .
 
+/datum/light_source/proc/get_turfs_in_range()
+	return view(CEILING(light_range, 1), source_turf)
 
 /datum/light_source/proc/update_corners()
 	var/update = FALSE
@@ -225,7 +247,7 @@
 	if (source_turf)
 		var/oldlum = source_turf.luminosity
 		source_turf.luminosity = CEILING(light_range, 1)
-		for(var/turf/T in view(CEILING(light_range, 1), source_turf))
+		for(var/turf/T in get_turfs_in_range())
 			if(!IS_OPAQUE_TURF(T))
 				if (!T.lighting_corners_initialised)
 					T.generate_missing_corners()
@@ -271,7 +293,76 @@
 
 	UNSETEMPTY(effect_str)
 
+// For planets and fake suns
+/datum/light_source/sun
+	light_range = 1
+	light_color = "#FFFFFF"
+	light_power = 2
+	var/applied_power = 2
+
+/datum/light_source/sun/New()
+/datum/light_source/sun/update_corners(var/list/turfs_to_update)
+	set waitfor = FALSE
+	
+	if(applied)
+		remove_lum()
+	
+	applied = TRUE
+
+	PARSE_LIGHT_COLOR(src)
+
+	if(applied_lum_r == lum_r && applied_lum_g == lum_g && applied_lum_b == lum_b && applied_power == light_power)
+		warning("Sun tried to update light, but it was the same as the existing light color/power")
+		return
+		
+	var/list/datum/lighting_corner/corners = list()
+
+	for(var/turf/T as anything in turfs_to_update)
+		if(!IS_OPAQUE_TURF(T))
+			if(!T.lighting_corners_initialised)
+				T.generate_missing_corners()
+			corners[T.lighting_corner_NE] = 0
+			corners[T.lighting_corner_SE] = 0
+			corners[T.lighting_corner_SW] = 0
+			corners[T.lighting_corner_NW] = 0
+		CHECK_TICK
+
+	var/list/datum/lighting_corner/new_corners = (corners - effect_str)
+	LAZYINITLIST(effect_str)
+	for (var/datum/lighting_corner/corner as anything in new_corners)
+		APPLY_CORNER_SIMPLE(corner)
+		if (. != 0)
+			LAZYADD(corner.affecting, src)
+			effect_str[corner] = .
+		CHECK_TICK
+
+	for (var/datum/lighting_corner/corner as anything in corners - new_corners) // Existing corners
+		APPLY_CORNER_SIMPLE(corner)
+		if (. != 0)
+			effect_str[corner] = .
+		else
+			LAZYREMOVE(corner.affecting, src)
+			effect_str -= corner
+		CHECK_TICK
+
+	var/list/datum/lighting_corner/gone_corners = effect_str - corners
+	for (var/datum/lighting_corner/corner as anything in gone_corners)
+		REMOVE_CORNER_SIMPLE(corner)
+		LAZYREMOVE(corner.affecting, src)
+		CHECK_TICK
+	
+	effect_str -= gone_corners
+	
+	applied_lum_r = lum_r
+	applied_lum_g = lum_g
+	applied_lum_b = lum_b
+	applied_power = light_power
+
+	UNSETEMPTY(effect_str)
+
 #undef EFFECT_UPDATE
 #undef LUM_FALLOFF
 #undef REMOVE_CORNER
 #undef APPLY_CORNER
+#undef REMOVE_CORNER_SIMPLE
+#undef APPLY_CORNER_SIMPLE
